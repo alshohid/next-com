@@ -2,16 +2,14 @@ import { PrismaClient } from "@prisma/client";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     const headerList = headers();
     const id = parseInt(headerList.get("id") as any);
-    const reqbody = await req.json();
     const prisma = new PrismaClient();
-    let result = await prisma.product_wishes.deleteMany({
-      where: {
-        AND: [{ user_id: id }, { product_id: reqbody.product_id }],
-      },
+    let result = await prisma.product_carts.findMany({
+      where: { user_id: id },
+      include: { products: true },
     });
     return NextResponse.json({ status: "success", data: result });
   } catch (error) {

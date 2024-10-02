@@ -32,26 +32,28 @@ model categories {
 }
 
 model products {
-  id              Int               @id @default(autoincrement())
-  title           String            @db.VarChar(200)
-  short_des       String            @db.VarChar(500)
-  price           Float
-  discount        Boolean
-  discount_price  Float
-  image           String            @db.VarChar(200)
-  stock           Boolean
-  star            Float
-  remark          products_remark
-  category_id     Int
-  categories      categories        @relation(fields: [category_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  brand_id        Int
-  brands          brands            @relation(fields: [brand_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  product_details product_details?
-  product_sliders product_sliders?
-  product_reviews product_reviews[]
-  product_wishes  product_wishes[]
-  createdAt       DateTime          @default(now()) @db.Timestamp(0)
-  updatedAt       DateTime          @default(now()) @updatedAt @db.Timestamp(0)
+  id               Int                @id @default(autoincrement())
+  title            String             @db.VarChar(200)
+  short_des        String             @db.VarChar(500)
+  price            Float
+  discount         Boolean
+  discount_price   Float
+  image            String             @db.VarChar(200)
+  stock            Boolean
+  star             Float
+  remark           products_remark
+  category_id      Int
+  categories       categories         @relation(fields: [category_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  brand_id         Int
+  brands           brands             @relation(fields: [brand_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  product_details  product_details?
+  product_sliders  product_sliders?
+  product_reviews  product_reviews[]
+  product_wishes   product_wishes[]
+  product_carts    product_carts[]
+  invoice_products invoice_products[]
+  createdAt        DateTime           @default(now()) @db.Timestamp(0)
+  updatedAt        DateTime           @default(now()) @updatedAt @db.Timestamp(0)
 }
 
 model product_sliders {
@@ -94,6 +96,9 @@ model users {
   customer_profiles customer_profiles?
   userRole          userRole[]
   product_wishes    product_wishes[]
+  product_carts     product_carts[]
+  invoices          invoices[]
+  invoice_products  invoice_products[]
   createdAt         DateTime           @default(now()) @db.Timestamp(0)
   updatedAt         DateTime           @default(now()) @updatedAt @db.Timestamp(0)
 }
@@ -151,6 +156,19 @@ model product_reviews {
   products          products          @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
 }
 
+model product_carts {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  product_id Int
+  color      String   @db.VarChar(200)
+  size       String   @db.VarChar(200)
+  qty        Float
+  createdAt  DateTime @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  products   products @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+}
+
 model product_wishes {
   id         Int      @id @default(autoincrement())
   product_id Int
@@ -161,6 +179,55 @@ model product_wishes {
   users      users    @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
 }
 
+model invoices {
+  id               Int                      @id @default(autoincrement())
+  total            Float
+  vat              Float
+  payable          Float
+  cus_details      String                   @db.VarChar(500)
+  ship_details     String                   @db.VarChar(500)
+  tran_id          String                   @db.VarChar(100)
+  val_id           String                   @default("0") @db.VarChar(100)
+  delivery_status  invoices_delivery_status
+  payment_status   String                   @db.VarChar(255)
+  user_id          Int
+  createdAt        DateTime                 @default(now()) @db.Timestamp(0)
+  updatedAt        DateTime                 @default(now()) @updatedAt @db.Timestamp(0)
+  invoice_products invoice_products[]
+  users            users                    @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+}
+
+model invoice_products {
+  id         Int    @id @default(autoincrement())
+  invoice_id Int
+  product_id Int
+  user_id    Int
+  qty        Float
+  sale_price Float
+  color      String @db.VarChar(50)
+  size       String @db.VarChar(50)
+
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  invoices invoices @relation(fields: [invoice_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  products products @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  users    users    @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+}
+model sslcommerz_accounts {
+  id           Int      @id @default(autoincrement())
+  store_id     String   @db.VarChar(255)
+  store_passwd String   @db.VarChar(255)
+  currency     String   @db.VarChar(255)
+  success_url  String   @db.VarChar(255)
+  fail_url     String   @db.VarChar(255)
+  cancel_url   String   @db.VarChar(255)
+  ipn_url      String   @db.VarChar(255)
+  init_url     String   @db.VarChar(255)
+  createdAt    DateTime @default(now()) @db.Timestamp(0)
+  updatedAt    DateTime @default(now()) @updatedAt @db.Timestamp(0)
+}
+
 enum products_remark {
   popular
   new
@@ -168,4 +235,10 @@ enum products_remark {
   special
   trending
   regular
+}
+
+enum invoices_delivery_status {
+  Pending
+  Processing
+  Completed
 }

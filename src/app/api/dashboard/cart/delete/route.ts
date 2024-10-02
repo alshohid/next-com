@@ -8,7 +8,7 @@ export async function DELETE(req: NextRequest) {
     const id = parseInt(headerList.get("id") as any);
     const reqbody = await req.json();
     const prisma = new PrismaClient();
-    let result = await prisma.product_wishes.deleteMany({
+    let result = await prisma.product_carts.deleteMany({
       where: {
         AND: [{ user_id: id }, { product_id: reqbody.product_id }],
       },
