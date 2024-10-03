@@ -38,10 +38,12 @@ export async function POST(req: Request) {
     let shippingDetails = `Name : ${profile?.ship_name}, City : ${profile?.ship_city}, Address : ${profile?.ship_add}`;
 
     //3 Set up transaction id and other id
+
     let tran_id = Math.floor(10000000 + Math.random() * 90000000).toString();
     let val_id = "0";
     let delivery_status = "Pending";
     let payment_status = "Pending";
+    
     //4 create invoice
     const createInvoice = await prisma.invoices.create({
       data: {
@@ -90,16 +92,16 @@ export async function POST(req: Request) {
     form.append("tran_id", `${tran_id}`);
     form.append(
       "success_url",
-      `${paymentSetting?.success_url}?train_id=${tran_id}`
+      `${paymentSetting?.success_url}?tran_id=${tran_id}`
     );
-    form.append("fail_url", `${paymentSetting?.fail_url}?train_id=${tran_id}`);
+    form.append("fail_url", `${paymentSetting?.fail_url}?tran_id=${tran_id}`);
     form.append(
       "cancel_url",
-      `${paymentSetting?.success_url}?train_id=${tran_id}`
+      `${paymentSetting?.success_url}?tran_id=${tran_id}`
     );
     form.append(
       "ipn_url",
-      `${paymentSetting?.success_url}?train_id=${tran_id}`
+      `${paymentSetting?.success_url}?tran_id=${tran_id}`
     );
     form.append("shipping_method", "YES");
     form.append("product_name", "According to invoice");
